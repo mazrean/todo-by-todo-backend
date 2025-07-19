@@ -10,5 +10,5 @@ import (
 var _ = kessoku.Inject[*router.Router](
 	"InjectCLI",
 	kessoku.Provide(router.NewRouter),
-	kessoku.Provide(router.NewExample),
+	kessoku.Provide(router.NewTodo("v1")),
 )
