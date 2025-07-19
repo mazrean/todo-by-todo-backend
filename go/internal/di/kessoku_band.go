@@ -4,20 +4,21 @@ package di
 
 import (
 	"github.com/mazrean/kessoku"
-	"github.com/mazrean/mazrean/todo-by-todo-backend/internal/repository"
 	repo "github.com/mazrean/mazrean/todo-by-todo-backend/internal/repository"
 	"github.com/mazrean/mazrean/todo-by-todo-backend/internal/repository/config"
 	"github.com/mazrean/mazrean/todo-by-todo-backend/internal/router"
 )
 
-func InjectCLI(addr router.Addr, version router.Version, dbconfig *repository.DBConfig, environment config.Environment) (*router.Router, error) {
+func InjectCLI(addr router.Addr, version router.Version, dbconfig *repo.DBConfig, environment config.Environment) (*router.Router, error) {
 	repository, err := kessoku.Provide(repo.NewDB).Fn()(dbconfig, environment)
 	if err != nil {
 		var zero *router.Router
 		return zero, err
 	}
 	todoRepository := kessoku.Provide(repo.NewTodoRepository).Fn()(repository)
+	userRepository := kessoku.Provide(repo.NewUserRepository).Fn()(repository)
 	todo := kessoku.Provide(router.NewTodo).Fn()(version, todoRepository)
-	router := kessoku.Provide(router.NewRouter).Fn()(addr, todo)
+	user := kessoku.Provide(router.NewUser).Fn()(version, userRepository)
+	router := kessoku.Provide(router.NewRouter).Fn()(addr, todo, user)
 	return router, nil
 }

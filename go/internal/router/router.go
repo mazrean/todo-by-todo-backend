@@ -7,15 +7,18 @@ import (
 type Router struct {
 	addr string
 	todo *Todo
+	user *User
 }
 
 func NewRouter(
 	addr Addr,
 	todo *Todo,
+	user *User,
 ) *Router {
 	return &Router{
 		addr: string(addr),
 		todo: todo,
+		user: user,
 	}
 }
 
@@ -33,6 +36,8 @@ func (r *Router) Run() error {
 	mux.HandleFunc("POST /todos", r.todo.PostTodoHandler)
 	mux.HandleFunc("PUT /todos/{id}", r.todo.UpdateTodoHandler)
 	mux.HandleFunc("DELETE /todos/{id}", r.todo.DeleteTodoHandler)
+
+	mux.HandleFunc("POST /users/{id}/todos", r.user.CreateUserHandler)
 
 	return http.ListenAndServe(
 		r.addr,
