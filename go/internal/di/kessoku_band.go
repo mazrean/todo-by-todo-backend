@@ -4,6 +4,7 @@ package di
 
 import (
 	"github.com/mazrean/kessoku"
+	"github.com/mazrean/mazrean/todo-by-todo-backend/internal/repository"
 	"github.com/mazrean/mazrean/todo-by-todo-backend/internal/router"
 )
 
