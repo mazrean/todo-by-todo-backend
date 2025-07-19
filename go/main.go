@@ -8,6 +8,8 @@ import (
 
 	"github.com/alecthomas/kong"
 	"github.com/mazrean/mazrean/todo-by-todo-backend/internal/di"
+	"github.com/mazrean/mazrean/todo-by-todo-backend/internal/repository"
+	"github.com/mazrean/mazrean/todo-by-todo-backend/internal/repository/config"
 	"github.com/mazrean/mazrean/todo-by-todo-backend/internal/router"
 )
 
@@ -36,10 +38,26 @@ func (cli *CLI) Run() error {
 	logger := slog.New(handler)
 	slog.SetDefault(logger)
 
-	app := di.InjectCLI(
+	dbCfg := &repository.DBConfig{
+		UserName: cli.DBUserName,
+		Password: cli.DBPassword,
+		Host:     cli.DBHost,
+		Port:     cli.DBPort,
+		Database: cli.DBDatabase,
+	}
+
+	environment := config.Environment(cli.Environment)
+
+	app, err := di.InjectCLI(
 		router.Addr(cli.Addr),
 		router.Version(version),
+		dbCfg,
+		environment,
 	)
+
+	if err != nil {
+		return fmt.Errorf("failed to inject dependencies: %w", err)
+	}
 
 	return app.Run()
 }
