@@ -31,7 +31,7 @@ curl http://localhost:8080/api/todos
 curl https:/todo.mazrean.com/api/todos
 ```
 
-GET /todos
+GET api/todos
 
 Response
 
@@ -86,7 +86,7 @@ curl -X POST https:/todo.mazrean.com/api/todos \
   }'
 ```
 
-POST /todos
+POST api/todos
 
 Request Body
 
@@ -129,7 +129,7 @@ curl -X PUT https:/todo.mazrean.com/api/todos/1 \
   }'
 ```
 
-PUT /todos/{id}
+PUT api/todos/{id}
 
 Path Parameter
 id：更新対象の Todo ID
@@ -161,7 +161,7 @@ curl -X DELETE http://localhost:8080/api/todos/1
 curl -X DELETE https:/todo.mazrean.com/api/todos/1
 ```
 
-DELETE /todos/{id}
+DELETE api/todos/{id}
 
 Path Parameter
 id：削除対象の Todo ID
@@ -174,7 +174,7 @@ Response
 
 ### 👤 Users
 
-#### POST /users
+#### POST api/users
 
 ```sh
 curl -X POST http://localhost:8080/api/users \
