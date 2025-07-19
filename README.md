@@ -24,11 +24,11 @@ Response
 #### 全ての Todo を取得
 
 ```sh
-curl http://localhost:8080/todos
+curl http://localhost:8080/api/todos
 ```
 
 ```sh
-curl https:/todo.mazrean.com/todos
+curl https:/todo.mazrean.com/api/todos
 ```
 
 GET /todos
@@ -54,7 +54,7 @@ Response
 #### 新しい Todo を作成
 
 ```sh
-curl -X POST http://localhost:8080/todos \
+curl -X POST http://localhost:8080/api/todos \
   -H "Content-Type: application/json" \
   -d '{
     "user_id": 1,
@@ -65,7 +65,7 @@ curl -X POST http://localhost:8080/todos \
 ```
 
 ```sh
-curl -X POST https:/todo.mazrean.com/todos \
+curl -X POST https:/todo.mazrean.com/api/todos \
   -H "Content-Type: application/json" \
   -d '{
     "user_id": 1,
@@ -97,7 +97,7 @@ Response
 #### 既存の Todo を更新
 
 ```sh
-curl -X PUT http://localhost:8080/todos/1 \
+curl -X PUT http://localhost:8080/api/todos/1 \
   -H "Content-Type: application/json" \
   -d '{
     "user_id": 1,
@@ -108,7 +108,7 @@ curl -X PUT http://localhost:8080/todos/1 \
 ```
 
 ```sh
-curl -X PUT https:/todo.mazrean.com/todos/1 \
+curl -X PUT https:/todo.mazrean.com/api/todos/1 \
   -H "Content-Type: application/json" \
   -d '{
     "user_id": 1,
@@ -143,11 +143,11 @@ Response
 #### 指定された Todo を削除
 
 ```sh
-curl -X DELETE http://localhost:8080/todos/1
+curl -X DELETE http://localhost:8080/api/todos/1
 ```
 
 ```sh
-curl -X DELETE https:/todo.mazrean.com/todos/1
+curl -X DELETE https:/todo.mazrean.com/api/todos/1
 ```
 
 DELETE /todos/{id}
@@ -166,7 +166,7 @@ Response
 #### POST /users
 
 ```sh
-curl -X POST http://localhost:8080/users \
+curl -X POST http://localhost:8080/api/users \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Taro Yamada"
@@ -174,7 +174,7 @@ curl -X POST http://localhost:8080/users \
 ```
 
 ```sh
-curl -X POST https:/todo.mazrean.com/users \
+curl -X POST https:/todo.mazrean.com/api/users \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Taro Yamada"
