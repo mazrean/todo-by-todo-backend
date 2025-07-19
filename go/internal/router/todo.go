@@ -50,7 +50,7 @@ func (t *Todo) PostTodoHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-	// userID int64, title string, description *string, completed bool
+
 	_, err := t.todoRepo.CreateTodo(r.Context(), request.UserID, request.Title, request.Description, request.Completed)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to create todo: %v", err), http.StatusInternalServerError)
