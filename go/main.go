@@ -20,7 +20,7 @@ var (
 type CLI struct {
 	LogLevel string           `kong:"short='l',help='Log level',enum='debug,info,warn,error',default='info'"`
 	Version  kong.VersionFlag `kong:"short='v',help='Show version and exit.'"`
-	Addr     string           `kong:"short='addr',help='Address to run the server on',default=':8080',env='ADDR'"`
+	Addr     string           `kong:"help='Address to run the server on',default=':8080',env='ADDR'"`
 }
 
 func (cli *CLI) Run() error {
