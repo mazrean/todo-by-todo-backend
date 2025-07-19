@@ -40,15 +40,16 @@ func (c *DBConfig) DataSourceName(environment string) (string, error) {
 	}
 
 	config := mysql.Config{
-		User:      c.UserName,
-		Passwd:    c.Password,
-		Net:       "tcp",
-		Addr:      net.JoinHostPort(c.Host, c.Port),
-		DBName:    c.Database,
-		ParseTime: true,
-		Loc:       loc,
-		Collation: "utf8mb4_general_ci",
-		TLSConfig: tlsConfig,
+		User:                 c.UserName,
+		Passwd:               c.Password,
+		Net:                  "tcp",
+		Addr:                 net.JoinHostPort(c.Host, c.Port),
+		DBName:               c.Database,
+		ParseTime:            true,
+		Loc:                  loc,
+		Collation:            "utf8mb4_general_ci",
+		TLSConfig:            tlsConfig,
+		AllowNativePasswords: true,
 	}
 	return config.FormatDSN(), nil
 }
