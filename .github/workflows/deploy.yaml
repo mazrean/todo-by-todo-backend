@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - feat/infra
+  workflow_dispatch:
 
 env:
   NODE_VERSION: 22
