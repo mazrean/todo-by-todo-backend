@@ -3,6 +3,7 @@ package repository
 //go:generate sqlc generate
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"net"
@@ -74,4 +75,40 @@ func (r *Repository) Close() error {
 
 func (r *Repository) GetQueries() *db.Queries {
 	return r.queries
+}
+
+type contextKey string
+
+const DBKey contextKey = "db"
+
+func (r *Repository) Transaction(ctx context.Context, txOption *sql.TxOptions, fn func(ctx context.Context) error) error {
+	tx, err := r.db.BeginTx(ctx, txOption)
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	txCtx := context.WithValue(ctx, DBKey, tx)
+
+	err = fn(txCtx)
+	if err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return nil
+}
+
+func (r *Repository) getDB(ctx context.Context) db.DBTX {
+	if tx, ok := ctx.Value(DBKey).(*sql.Tx); ok {
+		return tx
+	}
+	return r.db
+}
+
+func (r *Repository) GetQueriesWithTx(ctx context.Context) *db.Queries {
+	return db.New(r.getDB(ctx))
 }
