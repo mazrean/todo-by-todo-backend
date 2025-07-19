@@ -14,6 +14,7 @@ services:
       DB_HOST: tidb
       DB_PORT: 4000
       DB_DATABASE: todo_by_todo
+    restart: unless-stopped
     develop:
       watch:
         - action: rebuild
