@@ -1,6 +1,7 @@
 package router
 
 import (
+	"fmt"
 	"net/http"
 )
 
@@ -26,18 +27,19 @@ type Addr string
 
 func (r *Router) Run() error {
 	mux := http.NewServeMux()
+	basePath := "/api"
 
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
 	})
 
-	mux.HandleFunc("GET /todos", r.todo.GetTodoListHandler)
-	mux.HandleFunc("POST /todos", r.todo.PostTodoHandler)
-	mux.HandleFunc("PUT /todos/{id}", r.todo.UpdateTodoHandler)
-	mux.HandleFunc("DELETE /todos/{id}", r.todo.DeleteTodoHandler)
+	mux.HandleFunc(fmt.Sprintf("GET %s/todos", basePath), r.todo.GetTodoListHandler)
+	mux.HandleFunc(fmt.Sprintf("POST %s/todos", basePath), r.todo.PostTodoHandler)
+	mux.HandleFunc(fmt.Sprintf("PUT %s/todos/{id}", basePath), r.todo.UpdateTodoHandler)
+	mux.HandleFunc(fmt.Sprintf("DELETE %s/todos/{id}", basePath), r.todo.DeleteTodoHandler)
 
-	mux.HandleFunc("POST /users", r.user.CreateUserHandler)
+	mux.HandleFunc(fmt.Sprintf("POST %s/users", basePath), r.user.CreateUserHandler)
 
 	return http.ListenAndServe(
 		r.addr,

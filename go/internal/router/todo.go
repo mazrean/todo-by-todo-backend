@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/mazrean/mazrean/todo-by-todo-backend/internal/repository"
 	"github.com/mazrean/mazrean/todo-by-todo-backend/internal/utils"
@@ -28,13 +29,36 @@ type TodoRequest struct {
 	Completed   bool    `json:"completed"`
 }
 
+type TodoResponse struct {
+	ID          int64     `json:"id"`
+	UserID      int64     `json:"user_id"`
+	Title       string    `json:"title"`
+	Description *string   `json:"description,omitempty"`
+	Completed   bool      `json:"completed"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
 func (t *Todo) GetTodoListHandler(w http.ResponseWriter, r *http.Request) {
 	todos, err := t.todoRepo.ListTodos(r.Context())
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to list todos: %v", err), http.StatusInternalServerError)
 		return
 	}
-	WriteJSON(w, http.StatusOK, todos)
+
+	var response []TodoResponse
+	for _, todo := range todos {
+		response = append(response, TodoResponse{
+			ID:          todo.ID,
+			UserID:      todo.UserID,
+			Title:       todo.Title,
+			Description: &todo.Description.String,
+			Completed:   todo.Completed.Bool,
+			CreatedAt:   todo.CreatedAt.Time,
+			UpdatedAt:   todo.UpdatedAt.Time,
+		})
+	}
+	WriteJSON(w, http.StatusOK, response)
 }
 
 func (t *Todo) PostTodoHandler(w http.ResponseWriter, r *http.Request) {
