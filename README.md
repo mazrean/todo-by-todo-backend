@@ -163,7 +163,7 @@ Response
 
 ### 👤 Users
 
-#### POST /users/{id}/todos
+#### POST /users
 
 ```sh
 curl -X POST http://localhost:8080/users \
