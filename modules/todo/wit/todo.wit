@@ -1,0 +1,76 @@
+// Todo API WIT Interface
+// This file defines the WebAssembly Interface Types for the Todo API
+
+package todo:api;
+
+
+
+/// Main Todo API interface
+interface todo-api {
+    type todo-id = u64;
+    type user-id = u64;
+
+    /// Todo item representation
+    record todo {
+        id: todo-id,
+        user-id: user-id,
+        title: string,
+        description: option<string>,
+        completed: option<bool>,
+        created-at: option<string>,
+        updated-at: option<string>,
+    }
+
+    /// Request structure for creating/updating todos
+    record todo-request {
+        user-id: user-id,
+        title: string,
+        description: option<string>,
+        completed: bool,
+    }
+
+    /// Error types that can be returned by the API
+    variant api-error {
+        invalid-request(string),
+        internal-error(string),
+        not-found(string),
+        invalid-id(string),
+    }
+
+    record todo-result {
+        todo: todo,
+        error: option<api-error>,
+    }
+
+    record todos-result {
+        todos: list<todo>,
+        error: option<api-error>,
+    }
+
+    record create-result {
+      todo: todo,
+      error: option<api-error>,
+    }
+
+    /// List all todos
+    /// Corresponds to GetTodoListHandler
+    list-todos: func() -> todos-result;
+    
+    /// Create a new todo
+    /// Corresponds to PostTodoHandler
+    create-todo: func(request: todo-request) -> create-result;
+    
+    /// Update an existing todo by ID
+    /// Corresponds to UpdateTodoHandler
+    update-todo: func(id: todo-id, request: todo-request) -> option<api-error>;
+    
+    /// Delete a todo by ID
+    /// Corresponds to DeleteTodoHandler
+    delete-todo: func(id: todo-id) -> option<api-error>;
+}
+
+/// World definition
+world api {
+    include wasi:cli/imports@0.2.6;
+    export todo-api;
+}

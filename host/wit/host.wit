@@ -1,0 +1,5 @@
+package component:host;
+
+world host {
+  import todo:api/todo-api;
+}

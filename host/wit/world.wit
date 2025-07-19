@@ -1,5 +1,5 @@
 package component:host;
 
 world http-proxy {
-    include wasi:http/proxy@0.2.0;
+    include wasi:http/proxy@0.2.6;
 }
