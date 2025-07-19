@@ -6,16 +6,16 @@ import (
 
 type Router struct {
 	addr    string
-	example *Example
+	todo    *Todo
 }
 
 func NewRouter(
 	addr Addr,
-	example *Example,
+	todo *Todo,
 ) *Router {
 	return &Router{
 		addr:    string(addr),
-		example: example,
+		todo: todo,
 	}
 }
 
@@ -24,7 +24,20 @@ type Addr string
 func (r *Router) Run() error {
 	mux := http.NewServeMux()
 
-	mux.Handle("/example", http.HandlerFunc(r.example.Handler))
+	mux.HandleFunc("/todo", func(w http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case http.MethodGet:
+		r.todo.GetTodoList(w, req)
+	case http.MethodPost:
+		r.todo.PostTodo(w, req)
+	case http.MethodPut:
+		r.todo.UpdateTodo(w, req)
+	case http.MethodDelete:
+		r.todo.DeleteTodo(w, req)
+	default:
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+	}
+})
 
 	return http.ListenAndServe(
 		r.addr,

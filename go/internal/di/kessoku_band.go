@@ -8,7 +8,7 @@ import (
 )
 
 func InjectCLI(addr router.Addr, version router.Version) *router.Router {
-	example := kessoku.Provide(router.NewExample).Fn()(version)
-	router := kessoku.Provide(router.NewRouter).Fn()(addr, example)
+	todo := kessoku.Provide(router.NewTodo).Fn()(version)
+	router := kessoku.Provide(router.NewRouter).Fn()(addr, todo)
 	return router
 }
