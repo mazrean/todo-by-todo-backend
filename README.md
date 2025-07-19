@@ -174,7 +174,7 @@ curl -X POST http://localhost:8080/users \
 ```
 
 ```sh
-curl -X POSThttps:/todo.mazrean.com/users \
+curl -X POST https:/todo.mazrean.com/users \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Taro Yamada"
