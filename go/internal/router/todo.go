@@ -15,7 +15,6 @@ func NewTodo(version Version) *Todo {
 	return &Todo{}
 }
 
-// TODO: どこかに切り出す
 type TodoRequest struct {
 	Title string `json:"title"`
 	Done  bool   `json:"done"`
