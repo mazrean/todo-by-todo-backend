@@ -18,9 +18,15 @@ var (
 )
 
 type CLI struct {
-	LogLevel string           `kong:"short='l',help='Log level',enum='debug,info,warn,error',default='info'"`
-	Version  kong.VersionFlag `kong:"short='v',help='Show version and exit.'"`
-	Addr     string           `kong:"help='Address to run the server on',default=':8080',env='ADDR'"`
+	LogLevel    string           `kong:"short='l',help='Log level',enum='debug,info,warn,error',default='info'"`
+	Version     kong.VersionFlag `kong:"short='v',help='Show version and exit.'"`
+	Addr        string           `kong:"help='Address to run the server on',default=':8080',env='ADDR'"`
+	Environment string           `kong:"help='Environment',enum='development,production',default='development',env='ENV'"`
+	DBUserName  string           `kong:"help='Database user name',default='root',env='DB_USER_NAME'"`
+	DBPassword  string           `kong:"help='Database password',default='password',env='DB_PASSWORD'"`
+	DBHost      string           `kong:"help='Database host',default='localhost',env='DB_HOST'"`
+	DBPort      string           `kong:"help='Database port',default='3306',env='DB_PORT'"`
+	DBDatabase  string           `kong:"help='Database name',default='todo',env='DB_DATABASE'"`
 }
 
 func (cli *CLI) Run() error {
