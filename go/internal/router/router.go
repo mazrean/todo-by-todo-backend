@@ -25,18 +25,12 @@ func (r *Router) Run() error {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/todo", func(w http.ResponseWriter, req *http.Request) {
-	switch req.Method {
-	case http.MethodGet:
-		r.todo.GetTodoListHandler(w, req)
-	case http.MethodPost:
-		r.todo.PostTodoHandler(w, req)
-	case http.MethodPut:
-		r.todo.UpdateTodoHandler(w, req)
-	case http.MethodDelete:
-		r.todo.DeleteTodoHandler(w, req)
-	default:
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-	}
+
+	mux.HandleFunc("GET /todo", r.todo.GetTodoListHandler)
+	mux.HandleFunc("POST /todo", r.todo.PostTodoHandler)
+	mux.HandleFunc("PUT /todo/{id}", r.todo.UpdateTodoHandler)
+	mux.HandleFunc("DELETE /todo/{id}", r.todo.DeleteTodoHandler)
+
 })
 
 	return http.ListenAndServe(

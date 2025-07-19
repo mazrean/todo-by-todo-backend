@@ -27,9 +27,11 @@ func (e *Todo) PostTodoHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (e *Todo) UpdateTodoHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "UpdateTodo, %q", html.EscapeString(r.URL.Path))
+	id := r.PathValue("id")
+	fmt.Fprintf(w, "UpdateTodo %s, %q", id, html.EscapeString(r.URL.Path))
 }
 
 func (e *Todo) DeleteTodoHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "DeleteTodo, %q", html.EscapeString(r.URL.Path))
+	id := r.PathValue("id")
+	fmt.Fprintf(w, "DeleteTodo %s, %q", id, html.EscapeString(r.URL.Path))
 }
