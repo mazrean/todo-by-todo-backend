@@ -18,18 +18,18 @@ func (e *Todo) Handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
 }
 
-func (e *Todo) GetTodoList(w http.ResponseWriter, r *http.Request) {
+func (e *Todo) GetTodoListHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "GetTodoList, %q", html.EscapeString(r.URL.Path))
 }
 
-func (e *Todo) PostTodo(w http.ResponseWriter, r *http.Request) {
+func (e *Todo) PostTodoHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "PostTodo, %q", html.EscapeString(r.URL.Path))
 }
 
-func (e *Todo) UpdateTodo(w http.ResponseWriter, r *http.Request) {
+func (e *Todo) UpdateTodoHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "UpdateTodo, %q", html.EscapeString(r.URL.Path))
 }
 
-func (e *Todo) DeleteTodo(w http.ResponseWriter, r *http.Request) {
+func (e *Todo) DeleteTodoHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "DeleteTodo, %q", html.EscapeString(r.URL.Path))
 }

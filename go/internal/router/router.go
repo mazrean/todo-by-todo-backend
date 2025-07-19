@@ -27,13 +27,13 @@ func (r *Router) Run() error {
 	mux.HandleFunc("/todo", func(w http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case http.MethodGet:
-		r.todo.GetTodoList(w, req)
+		r.todo.GetTodoListHandler(w, req)
 	case http.MethodPost:
-		r.todo.PostTodo(w, req)
+		r.todo.PostTodoHandler(w, req)
 	case http.MethodPut:
-		r.todo.UpdateTodo(w, req)
+		r.todo.UpdateTodoHandler(w, req)
 	case http.MethodDelete:
-		r.todo.DeleteTodo(w, req)
+		r.todo.DeleteTodoHandler(w, req)
 	default:
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 	}
