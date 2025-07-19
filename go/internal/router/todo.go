@@ -5,14 +5,20 @@ import (
 	"fmt"
 	"html"
 	"net/http"
+
+	"github.com/mazrean/mazrean/todo-by-todo-backend/internal/repository"
 )
 
-type Todo struct{}
+type Todo struct{
+	todoRepo *repository.TodoRepository
+}
 
 type Version string
 
-func NewTodo(version Version) *Todo {
-	return &Todo{}
+func NewTodo(version Version, repo *repository.TodoRepository) *Todo {
+	return &Todo{
+		todoRepo: repo,
+	}
 }
 
 type TodoRequest struct {
