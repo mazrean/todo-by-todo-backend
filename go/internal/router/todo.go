@@ -7,9 +7,10 @@ import (
 	"net/http"
 
 	"github.com/mazrean/mazrean/todo-by-todo-backend/internal/repository"
+	"github.com/mazrean/mazrean/todo-by-todo-backend/internal/utils"
 )
 
-type Todo struct{
+type Todo struct {
 	todoRepo *repository.TodoRepository
 }
 
@@ -22,8 +23,10 @@ func NewTodo(version Version, repo *repository.TodoRepository) *Todo {
 }
 
 type TodoRequest struct {
-	Title string `json:"title"`
-	Done  bool   `json:"done"`
+	UserID      int64   `json:"user_id"`
+	Title       string  `json:"title"`
+	Description *string `json:"description,omitempty"`
+	Completed   bool    `json:"completed"`
 }
 
 func (t *Todo) Handler(w http.ResponseWriter, r *http.Request) {
@@ -32,6 +35,8 @@ func (t *Todo) Handler(w http.ResponseWriter, r *http.Request) {
 
 func (t *Todo) GetTodoListHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "GetTodoList, %q", html.EscapeString(r.URL.Path))
+
+	t.todoRepo.ListTodos(r.Context())
 }
 
 func (t *Todo) PostTodoHandler(w http.ResponseWriter, r *http.Request) {
@@ -40,20 +45,33 @@ func (t *Todo) PostTodoHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-	fmt.Fprintf(w, "PostTodo: title=%s, done=%v", request.Title, request.Done)
+	// userID int64, title string, description *string, completed bool
+	t.todoRepo.CreateTodo(r.Context(), request.UserID, request.Title, request.Description, request.Completed)
 }
 
 func (t *Todo) UpdateTodoHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
+	idInt64, err := utils.ParseInt64(id)
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
 	var request TodoRequest
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-	fmt.Fprintf(w, "UpdateTodo id=%s: title=%s, done=%v", id, request.Title, request.Done)
+	t.todoRepo.UpdateTodo(r.Context(), idInt64, request.Title, request.Description, request.Completed)
 }
 
 func (t *Todo) DeleteTodoHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
-	fmt.Fprintf(w, "DeleteTodo %s, %q", id, html.EscapeString(r.URL.Path))
+	idInt64, err := utils.ParseInt64(id)
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	t.todoRepo.DeleteTodo(r.Context(), idInt64)
 }
