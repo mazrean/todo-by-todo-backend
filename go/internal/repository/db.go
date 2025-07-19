@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/mazrean/mazrean/todo-by-todo-backend/internal/repository/config"
 	"github.com/mazrean/mazrean/todo-by-todo-backend/internal/repository/db"
 )
 
@@ -27,10 +28,15 @@ type DBConfig struct {
 	Database string
 }
 
-func (c *DBConfig) DataSourceName() (string, error) {
+func (c *DBConfig) DataSourceName(environment string) (string, error) {
 	loc, err := time.LoadLocation("Asia/Tokyo")
 	if err != nil {
 		return "", fmt.Errorf("failed to load location: %w", err)
+	}
+
+	tlsConfig := "false"
+	if environment == "production" {
+		tlsConfig = "true"
 	}
 
 	config := mysql.Config{
@@ -42,12 +48,13 @@ func (c *DBConfig) DataSourceName() (string, error) {
 		ParseTime: true,
 		Loc:       loc,
 		Collation: "utf8mb4_general_ci",
+		TLSConfig: tlsConfig,
 	}
 	return config.FormatDSN(), nil
 }
 
-func NewDB(dbConf *DBConfig) (*Repository, error) {
-	dsn, err := dbConf.DataSourceName()
+func NewDB(dbConf *DBConfig, env config.Environment) (*Repository, error) {
+	dsn, err := dbConf.DataSourceName(string(env))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get data source name: %w", err)
 	}
