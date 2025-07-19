@@ -36,7 +36,12 @@ func (t *Todo) Handler(w http.ResponseWriter, r *http.Request) {
 func (t *Todo) GetTodoListHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "GetTodoList, %q", html.EscapeString(r.URL.Path))
 
-	t.todoRepo.ListTodos(r.Context())
+	todos, err := t.todoRepo.ListTodos(r.Context())
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to list todos: %v", err), http.StatusInternalServerError)
+		return
+	}
+	WriteJSON(w, http.StatusOK, todos)
 }
 
 func (t *Todo) PostTodoHandler(w http.ResponseWriter, r *http.Request) {
@@ -46,7 +51,12 @@ func (t *Todo) PostTodoHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// userID int64, title string, description *string, completed bool
-	t.todoRepo.CreateTodo(r.Context(), request.UserID, request.Title, request.Description, request.Completed)
+	_, err := t.todoRepo.CreateTodo(r.Context(), request.UserID, request.Title, request.Description, request.Completed)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to create todo: %v", err), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusCreated)
 }
 
 func (t *Todo) UpdateTodoHandler(w http.ResponseWriter, r *http.Request) {
@@ -62,7 +72,11 @@ func (t *Todo) UpdateTodoHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-	t.todoRepo.UpdateTodo(r.Context(), idInt64, request.Title, request.Description, request.Completed)
+	err = t.todoRepo.UpdateTodo(r.Context(), idInt64, request.Title, request.Description, request.Completed)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+	w.WriteHeader(http.StatusOK)
 }
 
 func (t *Todo) DeleteTodoHandler(w http.ResponseWriter, r *http.Request) {
@@ -73,5 +87,9 @@ func (t *Todo) DeleteTodoHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t.todoRepo.DeleteTodo(r.Context(), idInt64)
+	err = t.todoRepo.DeleteTodo(r.Context(), idInt64)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+	w.WriteHeader(http.StatusOK)
 }
