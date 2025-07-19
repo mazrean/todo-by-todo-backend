@@ -1,4 +1,18 @@
 services:
+  wasm-host:
+    build:
+      context: ./host
+      # 必要に応じて host ディレクトリに Dockerfile を作成してください
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3001"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
   app:
     build:
       context: ./go
@@ -9,18 +23,19 @@ services:
       ENV: development
       LOG_LEVEL: debug
       ADDR: :8080
+      PROXY_URL: http://wasm-host:3001
       DB_USER_NAME: root
       DB_PASSWORD: ""
       DB_HOST: tidb
       DB_PORT: 4000
       DB_DATABASE: todo_by_todo
     restart: unless-stopped
-    develop:
-      watch:
-        - action: rebuild
-          path: .
+    # develop:
+    #   watch:
+    #     - action: rebuild
+    #       path: .
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/example"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       start_period: 10s
       interval: 10s
       timeout: 5s
@@ -36,7 +51,7 @@ services:
       dockerfile: ./tidb.Dockerfile
     restart: unless-stopped
     ports:
-      - 3001:3000
+      - 4000:4000
       - 2379:2379
     command: ["--tiflash", "0", "--kv.config", "/tikv/config.toml"]
     volumes:

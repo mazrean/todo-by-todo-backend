@@ -1,0 +1,18 @@
+package process;
+
+interface Process {
+  /// HTTP プロキシから呼ばれる
+  handle_request(
+    method: string,
+    uri:    string,
+    body:   vector<u8>
+  ) -> (
+    status:  u16,
+    headers: vector<string>,  // ["Key","Val","Key2","Val2",…]
+    body:    vector<u8>
+  );
+}
+
+world process {
+  export Process;
+}

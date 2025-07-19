@@ -3,6 +3,9 @@ package router
 import (
 	"fmt"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
+	"os"
 )
 
 type Router struct {
@@ -40,6 +43,19 @@ func (r *Router) Run() error {
 	mux.HandleFunc(fmt.Sprintf("DELETE %s/todos/{id}", basePath), r.todo.DeleteTodoHandler)
 
 	mux.HandleFunc(fmt.Sprintf("POST %s/users", basePath), r.user.CreateUserHandler)
+
+	proxyURL := os.Getenv("PROXY_URL")
+	if proxyURL == "" {
+		return fmt.Errorf("environment variable PROXY_URL is not set")
+	}
+	target, err := url.Parse(proxyURL)
+	if err != nil {
+		return fmt.Errorf("invalid PROXY_URL %q: %w", proxyURL, err)
+	}
+
+	wasmProxy := httputil.NewSingleHostReverseProxy(target)
+
+	mux.Handle(basePath+"/", wasmProxy)
 
 	return http.ListenAndServe(
 		r.addr,
