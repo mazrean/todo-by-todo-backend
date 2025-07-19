@@ -45,6 +45,12 @@ services:
   database_init:
     image: mysql:8.4.2
     restart: on-failure
-    command: mysql -htidb -uroot -P4000 -e "CREATE DATABASE IF NOT EXISTS todo_by_todo;"
+    volumes:
+      - ./go/internal/repository/schema:/docker-entrypoint-initdb.d
+    command: >
+      sh -c "
+        mysql -htidb -uroot -P4000 -e 'CREATE DATABASE IF NOT EXISTS todo_by_todo;' &&
+        mysql -htidb -uroot -P4000 todo_by_todo < /docker-entrypoint-initdb.d/001_init.sql
+      "
     depends_on:
       - tidb
