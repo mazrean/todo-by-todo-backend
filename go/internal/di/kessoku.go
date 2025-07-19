@@ -13,6 +13,8 @@ var _ = kessoku.Inject[*router.Router](
 	"InjectCLI",
 	kessoku.Provide(router.NewRouter),
 	kessoku.Provide(router.NewTodo),
+	kessoku.Provide(router.NewUser),
 	kessoku.Provide(repo.NewTodoRepository),
+	kessoku.Provide(repo.NewUserRepository),
 	kessoku.Provide(repo.NewDB),
 )

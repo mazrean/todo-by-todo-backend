@@ -3,7 +3,6 @@ package router
 import (
 	"encoding/json"
 	"fmt"
-	"html"
 	"net/http"
 
 	"github.com/mazrean/mazrean/todo-by-todo-backend/internal/repository"
@@ -29,13 +28,7 @@ type TodoRequest struct {
 	Completed   bool    `json:"completed"`
 }
 
-func (t *Todo) Handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
-}
-
 func (t *Todo) GetTodoListHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "GetTodoList, %q", html.EscapeString(r.URL.Path))
-
 	todos, err := t.todoRepo.ListTodos(r.Context())
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to list todos: %v", err), http.StatusInternalServerError)
