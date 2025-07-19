@@ -41,11 +41,22 @@ Response
 
   [
     {
-    "id": 1,
-    "user_id": 1,
-    "title": "買い物に行く",
-    "description": "牛乳を買う",
-    "completed": false
+      "id": 1,
+      "user_id": 1,
+      "title": "買い物に行く",
+      "description": "牛乳を買う",
+      "completed": false,
+      "created_at": "2025-07-19T14:16:21+09:00",
+      "updated_at": "2025-07-19T14:16:21+09:00"
+    },
+    {
+      "id": 2,
+      "user_id": 1,
+      "title": "宿題をやる",
+      "description": "理科の宿題をやる",
+      "completed": false,
+      "created_at": "2025-07-19T14:16:21+09:00",
+      "updated_at": "2025-07-19T14:16:21+09:00"
     },
     ...
   ]
