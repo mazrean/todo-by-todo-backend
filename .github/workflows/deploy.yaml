@@ -46,7 +46,6 @@ jobs:
           cache-to: type=gha,mode=max
           tags: |
             ${{ vars.SERVER_IMAGE }}:latest
-            ${{ vars.SERVER_IMAGE }}:${{ env.IMAGE_TAG }}
       - id: "deploy"
         uses: "google-github-actions/deploy-cloudrun@v2"
         with:
