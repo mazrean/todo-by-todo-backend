@@ -6,7 +6,14 @@ services:
     ports:
       - "8080:8080"
     environment:
+      ENV: development
+      LOG_LEVEL: debug
       ADDR: :8080
+      DB_USER_NAME: root
+      DB_PASSWORD: ""
+      DB_HOST: tidb
+      DB_PORT: 4000
+      DB_DATABASE: todo_by_todo
     develop:
       watch:
         - action: rebuild
