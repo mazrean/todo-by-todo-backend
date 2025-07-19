@@ -1,11 +1,15 @@
 # 📘 Todo API Documentation
 
-Base URL: http://localhost:8080
+Base URL: http://localhost:8080 or https:/todo.mazrean.com
 
 ### 🔍 Health Check
 
 ```sh
 curl http://localhost:8080/health
+```
+
+```sh
+curl https:/todo.mazrean.com/health
 ```
 
 GET /health
@@ -23,6 +27,10 @@ Response
 curl http://localhost:8080/todos
 ```
 
+```sh
+curl https:/todo.mazrean.com/todos
+```
+
 GET /todos
 
 Response
@@ -32,14 +40,14 @@ Response
   ```json
 
   [
-  {
-  "id": 1,
-  "user_id": 1,
-  "title": "買い物に行く",
-  "description": "牛乳を買う",
-  "completed": false
-  },
-  ...
+    {
+    "id": 1,
+    "user_id": 1,
+    "title": "買い物に行く",
+    "description": "牛乳を買う",
+    "completed": false
+    },
+    ...
   ]
   ```
 
@@ -47,6 +55,17 @@ Response
 
 ```sh
 curl -X POST http://localhost:8080/todos \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user_id": 1,
+    "title": "宿題をやる",
+    "description": "数学と英語を終わらせる",
+    "completed": false
+  }'
+```
+
+```sh
+curl -X POST https:/todo.mazrean.com/todos \
   -H "Content-Type: application/json" \
   -d '{
     "user_id": 1,
@@ -88,6 +107,17 @@ curl -X PUT http://localhost:8080/todos/1 \
   }'
 ```
 
+```sh
+curl -X PUT https:/todo.mazrean.com/todos/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user_id": 1,
+    "title": "宿題をやった",
+    "description": "理科も追加",
+    "completed": true
+  }'
+```
+
 PUT /todos/{id}
 
 Path Parameter
@@ -116,6 +146,10 @@ Response
 curl -X DELETE http://localhost:8080/todos/1
 ```
 
+```sh
+curl -X DELETE https:/todo.mazrean.com/todos/1
+```
+
 DELETE /todos/{id}
 
 Path Parameter
@@ -129,14 +163,25 @@ Response
 
 ### 👤 Users
 
-#### POST /users/{id}/todos
+#### POST /users
 
 ```sh
+curl -X POST http://localhost:8080/users \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Taro Yamada"
+  }'
+```
 
+```sh
+curl -X POSThttps:/todo.mazrean.com/users \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Taro Yamada"
+  }'
 ```
 
 新しいユーザーを作成します。
-（※/users/{id}/todos の URL ですが、実際の実装内容は ユーザー作成 です。設計ミスの可能性があるため後述します）
 
 Request Body
 

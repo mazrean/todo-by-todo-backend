@@ -37,7 +37,7 @@ func (r *Router) Run() error {
 	mux.HandleFunc("PUT /todos/{id}", r.todo.UpdateTodoHandler)
 	mux.HandleFunc("DELETE /todos/{id}", r.todo.DeleteTodoHandler)
 
-	mux.HandleFunc("POST /users/{id}/todos", r.user.CreateUserHandler)
+	mux.HandleFunc("POST /users", r.user.CreateUserHandler)
 
 	return http.ListenAndServe(
 		r.addr,
