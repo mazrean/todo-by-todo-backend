@@ -3,7 +3,6 @@ mod bindings;
 
 use bindings::exports::wasi::http::incoming_handler::Guest;
 use bindings::wasi::http::types::*;
-use bindings::wasi::io::streams::InputStream;
 
 wit_bindgen::generate!({
     world: "host",
