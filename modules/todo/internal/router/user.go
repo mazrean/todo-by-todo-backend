@@ -1,11 +1,13 @@
 package router
 
 import (
-	"encoding/json"
+	"context"
 	"fmt"
-	"net/http"
+	"log/slog"
 
+	todoapi "github.com/mazrean/todo-by-todo-backend/modules/todo/internal/bindings/todo/api/todo-api"
 	"github.com/mazrean/todo-by-todo-backend/modules/todo/internal/repository"
+	"go.bytecodealliance.org/cm"
 )
 
 type User struct {
@@ -22,17 +24,21 @@ type UserRequest struct {
 	Name string
 }
 
-func (u *User) CreateUserHandler(w http.ResponseWriter, r *http.Request) {
-	var request UserRequest
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
+func (u *User) CreateUserHandler(request todoapi.UserRequest) (result cm.Option[todoapi.APIError]) {
+	defer func() {
+		if r := recover(); r != nil {
+			slog.Error("panic in CreateUserHandler", "panic", r)
+			result = cm.Some(todoapi.APIErrorInternalError(fmt.Sprintf("panic: %v", r)))
+			return
+		}
+	}()
+	ctx := context.Background()
+
+	_, err := u.userRepo.CreateUser(ctx, request.Name)
+	if err != nil {
+		slog.Error("failed to delete todo", "error", err)
+		return cm.Some(todoapi.APIErrorInternalError("Failed to delete todo"))
 	}
 
-	userID, err := u.userRepo.CreateUser(r.Context(), request.Name)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to create user: %v", err), http.StatusInternalServerError)
-		return
-	}
-	WriteJSON(w, http.StatusCreated, map[string]int64{"user_id": userID})
+	return cm.None[todoapi.APIError]()
 }

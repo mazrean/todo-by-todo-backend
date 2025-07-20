@@ -54,6 +54,8 @@ func init() {
 	todoapi.Exports.CreateTodo = app.Todo.PostTodoHandler
 	todoapi.Exports.UpdateTodo = app.Todo.UpdateTodoHandler
 	todoapi.Exports.DeleteTodo = app.Todo.DeleteTodoHandler
+
+	todoapi.Exports.CreateUser = app.User.CreateUserHandler
 }
 
 func main() {}
