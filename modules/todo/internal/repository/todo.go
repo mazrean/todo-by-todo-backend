@@ -2,8 +2,10 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
+	"os"
 	"time"
 )
 
@@ -35,6 +37,16 @@ func (tr *TodoRepository) CreateTodo(ctx context.Context, userID int64, title st
 	}
 
 	tr.repository.data.Todos = append(tr.repository.data.Todos, todo)
+
+	bytes, err := json.MarshalIndent(tr.repository.data, "", "  ")
+	if err != nil {
+		return 0, err
+	}
+
+	// ファイルに書き込み
+	if err := os.WriteFile(tr.repository.dataPath, bytes, 0o644); err != nil {
+		return 0, err
+	}
 	result = id
 	return result, nil
 }
