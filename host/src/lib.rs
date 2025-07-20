@@ -3,6 +3,7 @@ mod bindings;
 
 use bindings::exports::wasi::http::incoming_handler::Guest;
 use bindings::wasi::http::types::*;
+use bindings::wasi::io::streams::InputStream;
 
 wit_bindgen::generate!({
     world: "host",
@@ -10,7 +11,7 @@ wit_bindgen::generate!({
 });
 
 // todo APIの関数をimport
-use crate::todo::api::todo_api::{list_todos, create_todo, update_todo, delete_todo, ApiError, Todo, TodoRequest};
+use crate::todo::api::todo_api::{list_todos, create_todo, update_todo, delete_todo, create_user, ApiError, Todo, TodoRequest, UserRequest};
 
 struct Component;
 
@@ -46,7 +47,7 @@ impl Component {
         json
     }
 
-    fn parse_request_body(_request: &IncomingRequest) -> Result<TodoRequest, String> {
+    fn parse_request_body_todo(_request: &IncomingRequest) -> Result<TodoRequest, String> {
         // リクエストボディの読み取り（簡易版）
         // 実際の実装では、リクエストボディを読み取ってJSONをパースする必要がある
         // ここでは例として固定値を返す
@@ -55,6 +56,15 @@ impl Component {
             title: "Parsed Todo".to_string(),
             description: Some("Parsed from request body".to_string()),
             completed: false,
+        })
+    }
+
+    fn parse_request_body_user(_request: &IncomingRequest) -> Result<UserRequest, String> {
+        // リクエストボディの読み取り（簡易版）
+        // 実際の実装では、リクエストボディを読み取ってJSONをパースする必要がある
+        // ここでは例として固定値を返す
+        Ok(UserRequest {
+            name: "Parsed User".to_string(),
         })
     }
 }
@@ -88,7 +98,7 @@ impl Guest for Component {
             }
             (Method::Post, "/api/todos") => {
                 // リクエストボディからTodoRequestを解析
-                match Self::parse_request_body(&request) {
+                match Self::parse_request_body_todo(&request) {
                     Ok(todo_request) => {
                         let create_result = create_todo(&todo_request);
                         if let Some(error) = create_result.error {
@@ -104,7 +114,7 @@ impl Guest for Component {
                 // パスからIDを抽出
                 if let Some(id_str) = path.strip_prefix("/todos/") {
                     if let Ok(id) = id_str.parse::<u64>() {
-                        match Self::parse_request_body(&request) {
+                        match Self::parse_request_body_todo(&request) {
                             Ok(todo_request) => {
                                 if let Some(error) = update_todo(id, &todo_request) {
                                     Self::handle_api_error(error)
@@ -135,6 +145,20 @@ impl Guest for Component {
                     }
                 } else {
                     (400, "Invalid path".to_string())
+                }
+            }
+            (Method::Post, "/api/users") => {
+                // リクエストボディから UserRequest をパース
+                match Self::parse_request_body_user(&request) {
+                    Ok(user_request) => {
+                        // create_user は Option<ApiError> を返す想定
+                        if let Some(err) = create_user(&user_request) {
+                            Self::handle_api_error(err)
+                        } else {
+                            (201, "User created successfully".to_string())
+                        }
+                    }
+                    Err(err) => (400, format!("Invalid request body: {}", err)),
                 }
             }
             (Method::Get, "/health") => (200, "OK".to_string()),

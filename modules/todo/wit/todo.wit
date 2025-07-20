@@ -29,6 +29,11 @@ interface todo-api {
         completed: bool,
     }
 
+    /// Request structure for creating a user
+    record user-request {
+        name: string,
+    }
+
     /// Error types that can be returned by the API
     variant api-error {
         invalid-request(string),
@@ -67,6 +72,10 @@ interface todo-api {
     /// Delete a todo by ID
     /// Corresponds to DeleteTodoHandler
     delete-todo: func(id: todo-id) -> option<api-error>;
+
+    /// Create a new user
+    /// Corresponds to CreateUserHandler
+    create-user: func(request: user-request) -> option<api-error>;
 }
 
 /// World definition
