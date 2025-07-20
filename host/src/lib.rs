@@ -154,7 +154,7 @@ impl Guest for Component {
             }
             (Method::Put, path) if path.starts_with("/api/todos/") => {
                 // パスからIDを抽出
-                if let Some(id_str) = path.strip_prefix("/todos/") {
+                if let Some(id_str) = path.strip_prefix("/api/todos/") {
                     if let Ok(id) = id_str.parse::<u64>() {
                         match Self::parse_request_body(&request) {
                             Ok(todo_request) => {
@@ -175,7 +175,7 @@ impl Guest for Component {
             }
             (Method::Delete, path) if path.starts_with("/api/todos/") => {
                 // パスからIDを抽出
-                if let Some(id_str) = path.strip_prefix("/todos/") {
+                if let Some(id_str) = path.strip_prefix("/api/todos/") {
                     if let Ok(id) = id_str.parse::<u64>() {
                         if let Some(error) = delete_todo(id) {
                             Self::handle_api_error(error)
