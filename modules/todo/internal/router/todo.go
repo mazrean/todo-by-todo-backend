@@ -21,6 +21,7 @@ func NewTodo(repo *repository.TodoRepository) *Todo {
 }
 
 func (t *Todo) GetTodoListHandler() (result todoapi.TodosResult) {
+	slog.Info("GetTodoListHandler called")
 	defer func() {
 		if r := recover(); r != nil {
 			slog.Error("panic in CreateUserHandler", "panic", r)
@@ -67,6 +68,7 @@ func (t *Todo) GetTodoListHandler() (result todoapi.TodosResult) {
 }
 
 func (t *Todo) PostTodoHandler(request todoapi.TodoRequest) (result todoapi.CreateResult) {
+	slog.Info("PostTodoHandler called", "request", request)
 	defer func() {
 		if r := recover(); r != nil {
 			slog.Error("panic in PostTodoHandler", "panic", r)
@@ -96,6 +98,7 @@ func (t *Todo) PostTodoHandler(request todoapi.TodoRequest) (result todoapi.Crea
 }
 
 func (t *Todo) UpdateTodoHandler(id todoapi.TodoID, request todoapi.TodoRequest) (result cm.Option[todoapi.APIError]) {
+	slog.Info("UpdateTodoHandler called", "id", id, "request", request)
 	defer func() {
 		if r := recover(); r != nil {
 			slog.Error("panic in UpdateTodoHandler", "panic", r)
@@ -115,6 +118,7 @@ func (t *Todo) UpdateTodoHandler(id todoapi.TodoID, request todoapi.TodoRequest)
 }
 
 func (t *Todo) DeleteTodoHandler(id todoapi.TodoID) (result cm.Option[todoapi.APIError]) {
+	slog.Info("DeleteTodoHandler called", "id", id)
 	defer func() {
 		if r := recover(); r != nil {
 			slog.Error("panic in DeleteTodoHandler", "panic", r)
