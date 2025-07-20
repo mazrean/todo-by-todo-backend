@@ -19,26 +19,23 @@ func NewUserRepository(repository *Repository) *UserRepository {
 func (ur *UserRepository) CreateUser(ctx context.Context, name string) (int64, error) {
 	var result int64
 
-	err := ur.repository.Transaction(ctx, func(ctx context.Context) error {
-		ur.repository.mutex.Lock()
-		defer ur.repository.mutex.Unlock()
+	ur.repository.mutex.Lock()
+	defer ur.repository.mutex.Unlock()
 
-		id := ur.repository.getNextID()
-		now := time.Now()
+	id := ur.repository.getNextID()
+	now := time.Now()
 
-		user := User{
-			ID:        id,
-			Name:      name,
-			CreatedAt: now,
-			UpdatedAt: now,
-		}
+	user := User{
+		ID:        id,
+		Name:      name,
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
 
-		ur.repository.data.Users = append(ur.repository.data.Users, user)
-		result = id
-		return nil
-	})
+	ur.repository.data.Users = append(ur.repository.data.Users, user)
+	result = id
 
-	return result, err
+	return result, nil
 }
 
 func (ur *UserRepository) GetUser(ctx context.Context, id int64) (*User, error) {

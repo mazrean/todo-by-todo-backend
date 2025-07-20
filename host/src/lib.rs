@@ -3,14 +3,62 @@ mod bindings;
 
 use bindings::exports::wasi::http::incoming_handler::Guest;
 use bindings::wasi::http::types::*;
+use serde::{Deserialize, Serialize};
+use serde_json;
 
 wit_bindgen::generate!({
     world: "host",
     generate_all,
 });
 
+#[derive(Serialize, Deserialize)]
+struct SerializableTodo {
+    id: u64,
+    user_id: u64,
+    title: String,
+    description: Option<String>,
+    completed: Option<bool>,
+    created_at: Option<String>,
+    updated_at: Option<String>,
+}
+
+#[derive(Serialize, Deserialize)]
+struct SerializableTodoRequest {
+    user_id: u64,
+    title: String,
+    description: Option<String>,
+    completed: bool,
+}
+
+impl From<&Todo> for SerializableTodo {
+    fn from(todo: &Todo) -> Self {
+        Self {
+            id: todo.id,
+            user_id: todo.user_id,
+            title: todo.title.clone(),
+            description: todo.description.clone(),
+            completed: todo.completed,
+            created_at: todo.created_at.clone(),
+            updated_at: todo.updated_at.clone(),
+        }
+    }
+}
+
+impl From<SerializableTodoRequest> for TodoRequest {
+    fn from(req: SerializableTodoRequest) -> Self {
+        Self {
+            user_id: req.user_id,
+            title: req.title,
+            description: req.description,
+            completed: req.completed,
+        }
+    }
+}
+
 // todo APIの関数をimport
-use crate::todo::api::todo_api::{list_todos, create_todo, update_todo, delete_todo, ApiError, Todo, TodoRequest};
+use crate::todo::api::todo_api::{
+    ApiError, Todo, TodoRequest, create_todo, delete_todo, list_todos, update_todo,
+};
 
 struct Component;
 
@@ -25,37 +73,41 @@ impl Component {
     }
 
     fn todos_to_json(todos: &[Todo]) -> String {
-        // 簡単なJSON形式に変換（serde無しで）
-        let mut json = String::from("[");
-        for (i, todo) in todos.iter().enumerate() {
-            if i > 0 {
-                json.push(',');
-            }
-            json.push_str(&format!(
-                r#"{{"id":{},"user_id":{},"title":"{}","description":{},"completed":{},"created_at":{},"updated_at":{}}}"#,
-                todo.id,
-                todo.user_id,
-                todo.title.replace('"', r#"\""#),
-                todo.description.as_ref().map_or("null".to_string(), |d| format!(r#""{}""#, d.replace('"', r#"\""#))),
-                todo.completed.unwrap_or(false),
-                todo.created_at.as_ref().map_or("null".to_string(), |d| format!(r#""{}""#, d.replace('"', r#"\""#))),
-                todo.updated_at.as_ref().map_or("null".to_string(), |d| format!(r#""{}""#, d.replace('"', r#"\""#)))
-            ));
+        // serde_jsonを使用してJSONに変換
+        let serializable_todos: Vec<SerializableTodo> = todos.iter().map(|t| t.into()).collect();
+        match serde_json::to_string(&serializable_todos) {
+            Ok(json) => json,
+            Err(_) => "[]".to_string(), // エラー時は空配列を返す
         }
-        json.push(']');
-        json
     }
 
-    fn parse_request_body(_request: &IncomingRequest) -> Result<TodoRequest, String> {
-        // リクエストボディの読み取り（簡易版）
-        // 実際の実装では、リクエストボディを読み取ってJSONをパースする必要がある
-        // ここでは例として固定値を返す
-        Ok(TodoRequest {
-            user_id: 1,
-            title: "Parsed Todo".to_string(),
-            description: Some("Parsed from request body".to_string()),
-            completed: false,
-        })
+    fn parse_request_body(request: &IncomingRequest) -> Result<TodoRequest, String> {
+        // リクエストボディを取得
+        let body = request.consume().map_err(|_| "Failed to get request body")?;
+        let input_stream = body.stream().map_err(|_| "Failed to get input stream")?;
+        
+        // ボディのデータを読み取り
+        let mut body_bytes = Vec::new();
+        loop {
+            match input_stream.read(8192) {
+                Ok(chunk) => {
+                    if chunk.is_empty() {
+                        break;
+                    }
+                    body_bytes.extend_from_slice(&chunk);
+                }
+                Err(_) => break,
+            }
+        }
+        
+        // バイト列を文字列に変換
+        let body_str = std::str::from_utf8(&body_bytes)
+            .map_err(|_| "Invalid UTF-8 in request body")?;
+        
+        // serde_jsonを使用してJSONをパース
+        serde_json::from_str::<SerializableTodoRequest>(body_str)
+            .map(|req| req.into())
+            .map_err(|e| format!("JSON parse error: {}", e))
     }
 }
 
@@ -75,7 +127,7 @@ impl Guest for Component {
 
         // ステータスコードとメッセージの設定
         let (status_code, message) = match (method, path.as_str()) {
-            (Method::Get, "/todos") => {
+            (Method::Get, "/api/todos") => {
                 // Todoリストの取得
                 let todos_result = list_todos();
                 if let Some(error) = todos_result.error {
@@ -86,7 +138,7 @@ impl Guest for Component {
                     (200, todos_json)
                 }
             }
-            (Method::Post, "/todos") => {
+            (Method::Post, "/api/todos") => {
                 // リクエストボディからTodoRequestを解析
                 match Self::parse_request_body(&request) {
                     Ok(todo_request) => {
@@ -100,9 +152,9 @@ impl Guest for Component {
                     Err(err) => (400, format!("Invalid request body: {}", err)),
                 }
             }
-            (Method::Put, path) if path.starts_with("/todos/") => {
+            (Method::Put, path) if path.starts_with("/api/todos/") => {
                 // パスからIDを抽出
-                if let Some(id_str) = path.strip_prefix("/todos/") {
+                if let Some(id_str) = path.strip_prefix("/api/todos/") {
                     if let Ok(id) = id_str.parse::<u64>() {
                         match Self::parse_request_body(&request) {
                             Ok(todo_request) => {
@@ -121,9 +173,9 @@ impl Guest for Component {
                     (400, "Invalid path".to_string())
                 }
             }
-            (Method::Delete, path) if path.starts_with("/todos/") => {
+            (Method::Delete, path) if path.starts_with("/api/todos/") => {
                 // パスからIDを抽出
-                if let Some(id_str) = path.strip_prefix("/todos/") {
+                if let Some(id_str) = path.strip_prefix("/api/todos/") {
                     if let Ok(id) = id_str.parse::<u64>() {
                         if let Some(error) = delete_todo(id) {
                             Self::handle_api_error(error)
@@ -137,6 +189,20 @@ impl Guest for Component {
                     (400, "Invalid path".to_string())
                 }
             }
+            // (Method::Post, "/api/users") => {
+            //     // リクエストボディから UserRequest をパース
+            //     match Self::parse_request_body_user(&request) {
+            //         Ok(user_request) => {
+            //             // create_user は Option<ApiError> を返す想定
+            //             if let Some(err) = create_user(&user_request) {
+            //                 Self::handle_api_error(err)
+            //             } else {
+            //                 (201, "User created successfully".to_string())
+            //             }
+            //         }
+            //         Err(err) => (400, format!("Invalid request body: {}", err)),
+            //     }
+            // }
             (Method::Get, "/health") => (200, "OK".to_string()),
             _ => (404, "Not Found".to_string()),
         };

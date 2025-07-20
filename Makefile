@@ -1,10 +1,18 @@
-.PHONY: all build install clean todo-wasm host-wasm compose run-host
+.PHONY: all build install clean todo-wasm host-wasm compose run-host docker-build docker-push deploy
+
+# Environment variables (can be overridden)
+IMAGE_NAME=asia-northeast1-docker.pkg.dev/todo-466405/todo/server
+IMAGE_TAG=latest
+PROJECT_ID=todo-466405
+REGION=asia-northeast1
+SERVICE_NAME=server
 
 # Default target
 all: build
 
 # Install required tools
 install:
+	rustup target add wasm32-wasip2 
 	cargo install wac-cli wit-deps-cli wkg
 	cargo install wasm-tools --locked
 	@echo "Please install TinyGo from: https://tinygo.org/getting-started/install/macos/"
@@ -49,3 +57,23 @@ run-host:
 		--env DB_FILEPATH=$(DB_FILEPATH) \
 		--dir $(BASE_DIR) \
 		$(WASM_FILE)
+
+# Docker build
+docker-build:
+	docker build --platform linux/amd64 -t $(IMAGE_NAME):latest .
+
+# Docker push 
+docker-push: docker-build
+	docker push $(IMAGE_NAME):latest
+	docker tag $(IMAGE_NAME):latest $(IMAGE_NAME):latest
+	docker push $(IMAGE_NAME):latest
+
+# Deploy to Cloud Run
+cloud-run-deploy: docker-build docker-push
+	gcloud run deploy $(SERVICE_NAME) \
+		--image=$(IMAGE_NAME):latest \
+		--region=$(REGION) \
+		--project=$(PROJECT_ID)
+
+# Full deployment pipeline
+deploy: cloud-run-deploy
