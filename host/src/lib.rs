@@ -75,7 +75,7 @@ impl Guest for Component {
 
         // ステータスコードとメッセージの設定
         let (status_code, message) = match (method, path.as_str()) {
-            (Method::Get, "/todos") => {
+            (Method::Get, "/api/todos") => {
                 // Todoリストの取得
                 let todos_result = list_todos();
                 if let Some(error) = todos_result.error {
@@ -86,7 +86,7 @@ impl Guest for Component {
                     (200, todos_json)
                 }
             }
-            (Method::Post, "/todos") => {
+            (Method::Post, "/api/todos") => {
                 // リクエストボディからTodoRequestを解析
                 match Self::parse_request_body(&request) {
                     Ok(todo_request) => {
@@ -100,7 +100,7 @@ impl Guest for Component {
                     Err(err) => (400, format!("Invalid request body: {}", err)),
                 }
             }
-            (Method::Put, path) if path.starts_with("/todos/") => {
+            (Method::Put, path) if path.starts_with("/api/todos/") => {
                 // パスからIDを抽出
                 if let Some(id_str) = path.strip_prefix("/todos/") {
                     if let Ok(id) = id_str.parse::<u64>() {
@@ -121,7 +121,7 @@ impl Guest for Component {
                     (400, "Invalid path".to_string())
                 }
             }
-            (Method::Delete, path) if path.starts_with("/todos/") => {
+            (Method::Delete, path) if path.starts_with("/api/todos/") => {
                 // パスからIDを抽出
                 if let Some(id_str) = path.strip_prefix("/todos/") {
                     if let Ok(id) = id_str.parse::<u64>() {
