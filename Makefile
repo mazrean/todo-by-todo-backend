@@ -1,4 +1,4 @@
-.PHONY: all build install clean todo-wasm host-wasm compose
+.PHONY: all build install clean todo-wasm host-wasm compose run-host
 
 # Default target
 all: build
@@ -36,3 +36,16 @@ clean:
 	rm -f composed.wasm
 	rm -f modules/todo/todo.wasm
 	cd host && cargo clean
+
+BASE_DIR := $(CURDIR)
+DB_FILEPATH := $(BASE_DIR)/tmp
+WASM_FILE := $(BASE_DIR)/composed.wasm
+PORT := 8080
+
+run-host:
+	@echo "Starting server on 127.0.0.1:$(PORT) with DB_FILEPATH=$(DB_FILEPATH)"
+	wasmtime serve --wasi cli,inherit-env \
+		--addr 127.0.0.1:$(PORT) \
+		--env DB_FILEPATH=$(DB_FILEPATH) \
+		--dir $(BASE_DIR) \
+		$(WASM_FILE)
