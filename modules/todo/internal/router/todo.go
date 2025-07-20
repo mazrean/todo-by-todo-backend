@@ -68,7 +68,7 @@ func (t *Todo) GetTodoListHandler() (result todoapi.TodosResult) {
 }
 
 func (t *Todo) PostTodoHandler(request todoapi.TodoRequest) (result todoapi.CreateResult) {
-	slog.Info("PostTodoHandler called", "request", request)
+	slog.Info("PostTodoHandler called", "completed", request.Completed, "title", request.Title, "description", request.Description, "userID", request.UserID, "request", request)
 	defer func() {
 		if r := recover(); r != nil {
 			slog.Error("panic in PostTodoHandler", "panic", r)

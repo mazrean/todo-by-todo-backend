@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 )
 
@@ -17,31 +18,25 @@ func NewTodoRepository(repository *Repository) *TodoRepository {
 }
 
 func (tr *TodoRepository) CreateTodo(ctx context.Context, userID int64, title string, description *string, completed bool) (int64, error) {
+	slog.Info("CreateTodo called", "userID", userID, "title", title, "description", description, "completed", completed)
 	var result int64
-	
-	err := tr.repository.Transaction(ctx, func(ctx context.Context) error {
-		tr.repository.mutex.Lock()
-		defer tr.repository.mutex.Unlock()
 
-		id := tr.repository.getNextID()
-		now := time.Now()
+	id := tr.repository.getNextID()
+	now := time.Now()
 
-		todo := Todo{
-			ID:          id,
-			UserID:      userID,
-			Title:       title,
-			Description: description,
-			Completed:   completed,
-			CreatedAt:   now,
-			UpdatedAt:   now,
-		}
+	todo := Todo{
+		ID:          id,
+		UserID:      userID,
+		Title:       title,
+		Description: description,
+		Completed:   completed,
+		CreatedAt:   now,
+		UpdatedAt:   now,
+	}
 
-		tr.repository.data.Todos = append(tr.repository.data.Todos, todo)
-		result = id
-		return nil
-	})
-
-	return result, err
+	tr.repository.data.Todos = append(tr.repository.data.Todos, todo)
+	result = id
+	return result, nil
 }
 
 func (tr *TodoRepository) GetTodo(ctx context.Context, id int64) (*Todo, error) {
